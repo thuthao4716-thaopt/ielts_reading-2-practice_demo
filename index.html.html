@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IELTS Reading Practice - Activity 1</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Thanh cuộn gọn gàng */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
+</head>
+<body class="bg-slate-100 h-screen flex flex-col font-sans overflow-hidden">
+
+  <!-- Header -->
+  <header class="bg-[#4338ca] text-white px-6 py-3 flex justify-between items-center shadow select-none flex-shrink-0">
+    <div class="flex items-center space-x-3">
+      <i class="fa-solid fa-book-open text-xl"></i>
+      <h1 class="font-bold text-base md:text-lg">IELTS Reading Practice - Activity 1</h1>
+    </div>
+    <div class="text-xs md:text-sm font-medium bg-indigo-900/50 px-3 py-1 rounded-full border border-indigo-400/30">
+      Topic: <span id="topicName">Amazing Homes</span>
+    </div>
+  </header>
+
+  <!-- Split Screen Container -->
+  <main class="flex flex-1 overflow-hidden">
+    
+    <!-- CỘT TRÁI: BÀI ĐỌC & AUDIO PLAYER -->
+    <section class="w-1/2 flex flex-col bg-white border-r border-slate-200">
+      <!-- Toolbar Audio & Dịch -->
+      <div class="p-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between flex-shrink-0">
+        <div class="flex items-center space-x-2">
+          <button id="btnPlayPassage" class="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center hover:bg-indigo-700 transition">
+            <i class="fa-solid fa-play text-sm" id="playIcon"></i>
+          </button>
+          <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">Audio Reader (AI Voice)</span>
+        </div>
+
+        <div class="flex items-center space-x-2">
+          <button id="btnToggleLang" class="text-xs border border-indigo-600 text-indigo-600 px-3 py-1.5 rounded-full hover:bg-indigo-50 font-medium flex items-center gap-1 transition">
+            <i class="fa-solid fa-language"></i> <span id="langBtnText">Xem Bản Dịch Bài Đọc</span>
+          </button>
+          <select id="playbackRate" class="text-xs border border-slate-300 rounded px-2 py-1 bg-white text-slate-700 focus:outline-none">
+            <option value="0.8">Tốc độ: 0.8x</option>
+            <option value="1.0" selected>Tốc độ: 1.0x</option>
+            <option value="1.2">Tốc độ: 1.2x</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Khung hiển thị nội dung bài đọc -->
+      <div class="p-6 overflow-y-auto space-y-4 text-slate-800 text-sm leading-relaxed" id="passageContainer">
+        <!-- Render động từ JavaScript -->
+      </div>
+    </section>
+
+    <!-- CỘT PHẢI: QUIZ & TỪ VỰNG -->
+    <section class="w-1/2 flex flex-col bg-slate-50">
+      <!-- Tabs Bar -->
+      <div class="flex border-b border-slate-200 bg-white flex-shrink-0">
+        <button id="tabBtnQuiz" onclick="switchTab('quiz')" class="flex-1 py-3 text-center text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-pen-to-square"></i> Interactive Quiz
+        </button>
+        <button id="tabBtnVocab" onclick="switchTab('vocab')" class="flex-1 py-3 text-center text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-indigo-600 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-book-bookmark"></i> Từ Vựng & Paraphrase
+        </button>
+      </div>
+
+      <!-- Tab Content Area -->
+      <div class="flex-1 overflow-y-auto p-6">
+        
+        <!-- NỘI DUNG TAB 1: QUIZ -->
+        <div id="tabContentQuiz" class="space-y-6">
+          <div class="bg-blue-50 border-l-4 border-blue-500 p-3 rounded text-xs text-blue-900 font-medium">
+            <i class="fa-solid fa-circle-info mr-1"></i> <span id="quizInstruction"></span>
+          </div>
+
+          <div id="quizQuestionsContainer" class="space-y-5">
+            <!-- Render động câu hỏi -->
+          </div>
+
+          <div class="pt-2">
+            <button onclick="checkAnswers()" class="w-full py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition shadow text-sm">
+              <i class="fa-solid fa-check-double mr-1"></i> Nộp bài & Kiểm tra đáp án
+            </button>
+          </div>
+        </div>
+
+        <!-- NỘI DUNG TAB 2: TỪ VỰNG & PARAPHRASE -->
+        <div id="tabContentVocab" class="hidden space-y-6">
+          <!-- Danh sách Card từ vựng -->
+          <div id="vocabListContainer" class="space-y-3">
+            <!-- Render thẻ từ vựng -->
+          </div>
+
+          <!-- Bảng Paraphrase Matrix -->
+          <div class="bg-white rounded-lg border border-slate-200 shadow-sm p-4 mt-6">
+            <h3 class="font-bold text-sm text-slate-800 mb-3 flex items-center gap-2">
+              <i class="fa-solid fa-table-cells text-indigo-600"></i> Bảng Paraphrase Matrix
+            </h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-xs text-left text-slate-600 border-collapse">
+                <thead class="bg-slate-50 border-b border-slate-200">
+                  <tr>
+                    <th class="p-2.5 font-semibold text-slate-700">Từ trong câu hỏi (Question)</th>
+                    <th class="p-2.5 font-semibold text-slate-700">Từ tương đương bài đọc (Passage)</th>
+                    <th class="p-2.5 font-semibold text-slate-700">Nghĩa tiếng Việt</th>
+                  </tr>
+                </thead>
+                <tbody id="paraphraseTableBody">
+                  <!-- Render bảng matrix -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // Dữ liệu JSON Activity 1 đã trích xuất
+    const studyData = {
+      "id": "activity-1",
+      "title": "AMAZING HOMES",
+      "topic": "Amazing Homes",
+      "passage": {
+        "en": {
+          "lead": "Most people live in a house or a flat. When they go on holiday they stay in a hotel or a guest house. But some places where you can live or stay are a bit different.",
+          "sections": [
+            { "label": "A", "text": "One unusual place to live is a houseboat. Amsterdam in Holland is famous for its houseboats - there are about 2,500 of them. They have everything that normal houses have: a living room, bedroom, kitchen, bathroom and even sometimes a terrace on the roof. They are cheaper than houses and people who live on houseboats enjoy being close to nature. Some houseboats can be moved to other parts of the river, while others are permanently in one place." },
+            { "label": "B", "text": "In Tokyo, Japan, there is a see-through house. It is like a normal Japanese house but all the walls are made of glass. There is plenty of daylight but no privacy. Architect Sou Fujimoto designed it for a couple to make their home. He based his idea on early man living in trees. It wouldn't suit everyone but the couple who live there love the feeling of being surrounded by the natural world." },
+            { "label": "C", "text": "All around the world, people live in homes made from shipping containers. Some use only one container, while others are made from several containers joined together. One house in Chile was built from 12 containers. They are cheap to buy and eco-friendly. They can also be placed in the garden or drive as guest rooms, studies or utility rooms." },
+            { "label": "D", "text": "In Germany, you can stay in a one-metre-square house, the smallest house in the world, called the House NA. Van Bo Le-Mentzel, a refugee from Laos, built it to draw attention to the world housing shortage. It is a wooden structure on wheels and weighs 40 kg. It has a locking door and window. You can turn it onto its side when you want to lie down. Franz from Munich spent the night in one recently 'just to see what it was like'. He found it a bit uncomfortable!" },
+            { "label": "E", "text": "For an unusual holiday you can stay in an igloo, a house made of ice. These can be found in several countries including Sweden, Norway and Finland. They are built new every winter. Jenny and Callum, visitors from Australia, told us, 'We slept in an igloo last night. It's so cold there - minus 5 degrees centigrade. We used reindeer skins to keep warm.'" },
+            { "label": "F", "text": "Another couple, Shaun and Rachel from Manchester, enjoyed a recent holiday in a treehouse in Sussex, England. They said, 'It was right up in the trees and had everything we needed, even wifi! It had a small kitchen and we did our own cooking. It was the perfect place to get away from our busy lives.'" }
+          ]
+        },
+        "vi": {
+          "lead": "Hầu hết mọi người sống trong một ngôi nhà hoặc căn hộ. Khi đi nghỉ, họ thường ở khách sạn hoặc nhà nghỉ. Nhưng một số nơi mà bạn có thể sinh sống hoặc lưu trú lại có phần khác biệt.",
+          "sections": [
+            { "label": "A", "text": "Một nơi ở khác thường là nhà thuyền. Amsterdam ở Hà Lan nổi tiếng với những ngôi nhà thuyền – có khoảng 2.500 ngôi nhà như vậy. Chúng có mọi thứ mà những ngôi nhà bình thường có: phòng khách, phòng ngủ, nhà bếp, phòng tắm và đôi khi thậm chí còn có cả sân thượng trên mái. Nhà thuyền rẻ hơn nhà ở thông thường và những người sống trên đó thích cảm giác được gần gũi với thiên nhiên. Một số nhà thuyền có thể được di chuyển đến những khu vực khác của dòng sông, trong khi những ngôi nhà khác được neo cố định tại một chỗ." },
+            { "label": "B", "text": "Ở Tokyo, Nhật Bản, có một ngôi nhà trong suốt. Nó giống như một ngôi nhà bình thường của Nhật Bản, nhưng tất cả các bức tường đều được làm bằng kính. Ngôi nhà có rất nhiều ánh sáng tự nhiên nhưng lại không có sự riêng tư. Kiến trúc sư Sou Fujimoto đã thiết kế ngôi nhà này cho một cặp vợ chồng. Ông lấy cảm hứng từ ý tưởng về những người thời kỳ đầu sống trên cây. Kiểu nhà này không phù hợp với tất cả mọi người, nhưng cặp vợ chồng sống ở đó rất thích cảm giác được bao quanh bởi thế giới tự nhiên." },
+            { "label": "C", "text": "Trên khắp thế giới, mọi người sống trong những ngôi nhà được làm từ container vận chuyển hàng hóa. Một số ngôi nhà chỉ sử dụng một container, trong khi những ngôi nhà khác được làm từ nhiều container ghép lại với nhau. Một ngôi nhà ở Chile được xây dựng từ 12 container. Những container này có giá mua rẻ và thân thiện với môi trường. Chúng cũng có thể được đặt trong vườn hoặc trên lối xe chạy vào nhà để làm phòng cho khách, phòng làm việc hoặc phòng tiện ích." },
+            { "label": "D", "text": "Ở Đức, bạn có thể ở trong một ngôi nhà rộng một mét vuông, ngôi nhà nhỏ nhất thế giới, được gọi là House NA. Van Bo Le-Mentzel, một người tị nạn đến từ Lào, đã xây dựng ngôi nhà này nhằm thu hút sự chú ý đến tình trạng thiếu nhà ở trên thế giới. Đây là một công trình bằng gỗ có bánh xe và nặng 40 kg. Nó có một cánh cửa có khóa và một cửa sổ. Bạn có thể xoay nó nằm nghiêng khi muốn nằm xuống. Franz đến từ Munich gần đây đã qua đêm trong một ngôi nhà như vậy “chỉ để xem cảm giác sẽ như thế nào”. Anh thấy nó hơi không thoải mái!" },
+            { "label": "E", "text": "Để có một kỳ nghỉ khác thường, bạn có thể ở trong lều tuyết, một ngôi nhà làm bằng băng. Những ngôi nhà như vậy có thể được tìm thấy ở một số quốc gia, bao gồm Thụy Điển, Na Uy và Phần Lan. Chúng được xây mới vào mỗi mùa đông. Jenny và Callum, hai du khách đến từ Úc, kể với chúng tôi: “Đêm qua chúng tôi đã ngủ trong một căn lều tuyết. Ở đó lạnh đến mức nhiệt độ xuống tới âm 5 độ C. Chúng tôi đã mặc áo khoác da tuần lộc để giữ ấm.”" },
+            { "label": "F", "text": "Một cặp đôi khác, Shaun và Rachel đến từ Manchester, đã tận hưởng một kỳ nghỉ gần đây trong một ngôi nhà trên cây ở Sussex, Anh. Họ cho biết: “Ngôi nhà nằm ngay trên cao giữa những tán cây và có mọi thứ chúng tôi cần, thậm chí có cả Wi-Fi. Nó có một căn bếp nhỏ và chúng tôi tự nấu ăn. Đây là nơi hoàn hảo để rời xa cuộc sống bận rộn của mình.”" }
+          ]
+        }
+      },
+      "interactive_quiz": {
+        "instruction": "Complete the sentences. Choose NO MORE THAN TWO WORDS from the passage for each answer.",
+        "questions": [
+          { "id": 1, "prefix": "The two people who live in the transparent house love it, but it wouldn't ", "suffix": ".", "answer": "suit everyone", "explain": "Đoạn B: 'It wouldn't suit everyone but the couple who live there love the feeling...'" },
+          { "id": 2, "prefix": "The designer of the smallest house hopes to ", "suffix": " to the lack of houses all over the world.", "answer": "draw attention", "explain": "Đoạn D: '...built it to draw attention to the world housing shortage.'" },
+          { "id": 3, "prefix": "People who stay in igloos sometimes protect themselves from the cold by making use of ", "suffix": ".", "answer": "reindeer skins", "explain": "Đoạn E: 'We used reindeer skins to keep warm.'" },
+          { "id": 4, "prefix": "People who have ", "suffix": " would find a holiday in a treehouse ideal.", "answer": "busy lives", "explain": "Đoạn F: 'It was the perfect place to get away from our busy lives.'" }
+        ]
+      },
+      "vocabularies": [
+        { "id": 21, "word": "unusual place", "pos": "Cụm danh từ", "ipa": "/ʌnˈjuː.ʒu.əl pleɪs/", "meaning": "nơi ở khác thường / độc đáo", "example_en": "One unusual place to live is a houseboat.", "example_vi": "Một nơi ở khác thường là nhà thuyền." },
+        { "id": 22, "word": "see-through house", "pos": "Cụm danh từ", "ipa": "/ˈsiː.θruː haʊs/", "meaning": "ngôi nhà trong suốt", "example_en": "In Tokyo, Japan, there is a see-through house.", "example_vi": "Ở Tokyo, Nhật Bản, có một ngôi nhà trong suốt." },
+        { "id": 23, "word": "keep warm", "pos": "Cụm động từ", "ipa": "/kiːp wɔːm/", "meaning": "giữ ấm", "example_en": "We used reindeer skins to keep warm.", "example_vi": "Chúng tôi dùng da tuần lộc để giữ ấm." },
+        { "id": 24, "word": "perfect place", "pos": "Cụm danh từ", "ipa": "/ˈpɜː.fɪkt pleɪs/", "meaning": "nơi lý tưởng", "example_en": "It was the perfect place to get away from our busy lives.", "example_vi": "Đó là nơi lý tưởng để tạm rời xa cuộc sống bận rộn của chúng tôi." },
+        { "id": 25, "word": "get away", "pos": "Cụm động từ", "ipa": "/ɡet əˈweɪ/", "meaning": "tránh xa, tạm rời khỏi", "example_en": "It was the perfect place to get away from our busy lives.", "example_vi": "Đó là nơi lý tưởng để tạm rời xa cuộc sống bận rộn của chúng tôi." },
+        { "id": 26, "word": "busy lives", "pos": "Cụm danh từ", "ipa": "/ˈbɪz.i laɪvz/", "meaning": "cuộc sống bận rộn", "example_en": "It was the perfect place to get away from our busy lives.", "example_vi": "Đó là nơi lý tưởng để tạm rời xa cuộc sống bận rộn của chúng tôi." },
+        { "id": 27, "word": "draw attention", "pos": "Cụm động từ", "ipa": "/drɔː əˈten.ʃən/", "meaning": "thu hút sự chú ý", "example_en": "Van Bo Le-Mentzel built it to draw attention to the world housing shortage.", "example_vi": "Van Bo Le-Mentzel xây nó nhằm thu hút sự chú ý đến tình trạng thiếu nhà ở trên thế giới." }
+      ],
+      "paraphrase_matrix": [
+        { "q": "transparent house", "p": "see-through house", "m": "Ngôi nhà trong suốt" },
+        { "q": "lack of houses all over the world", "p": "world housing shortage", "m": "Tình trạng thiếu hụt nhà ở" },
+        { "q": "protect themselves from the cold", "p": "keep warm", "m": "Bảo vệ khỏi cái lạnh / Giữ ấm" },
+        { "q": "ideal", "p": "perfect place", "m": "Lý tưởng / Nơi hoàn hảo" }
+      ]
+    };
+
+    let currentLang = 'en';
+
+    // 1. Render bài đọc
+    function renderPassage() {
+      const container = document.getElementById('passageContainer');
+      const data = studyData.passage[currentLang];
+      
+      let html = `<h2 class="text-xl font-bold text-slate-900 tracking-tight">${studyData.title}</h2>`;
+      html += `<p class="bg-indigo-50/70 p-3 rounded-lg text-slate-700 italic border-l-4 border-indigo-400">${data.lead}</p>`;
+      
+      data.sections.forEach(sec => {
+        html += `
+          <div class="space-y-1">
+            <span class="font-bold text-indigo-700">${sec.label}.</span>
+            <span class="text-slate-800 leading-relaxed">${sec.text}</span>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    // Toggle chuyển ngữ
+    document.getElementById('btnToggleLang').addEventListener('click', () => {
+      currentLang = currentLang === 'en' ? 'vi' : 'en';
+      document.getElementById('langBtnText').innerText = currentLang === 'en' ? 'Xem Bản Dịch Bài Đọc' : 'Xem Bản Tiếng Anh';
+      renderPassage();
+    });
+
+    // 2. Chuyển tab Quiz / Từ vựng
+    function switchTab(tab) {
+      const isQuiz = tab === 'quiz';
+      document.getElementById('tabContentQuiz').classList.toggle('hidden', !isQuiz);
+      document.getElementById('tabContentVocab').classList.toggle('hidden', isQuiz);
+
+      document.getElementById('tabBtnQuiz').className = isQuiz 
+        ? "flex-1 py-3 text-center text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600 flex items-center justify-center gap-2"
+        : "flex-1 py-3 text-center text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-indigo-600 flex items-center justify-center gap-2";
+
+      document.getElementById('tabBtnVocab').className = !isQuiz 
+        ? "flex-1 py-3 text-center text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600 flex items-center justify-center gap-2"
+        : "flex-1 py-3 text-center text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-indigo-600 flex items-center justify-center gap-2";
+    }
+
+    // 3. Render Quiz
+    function renderQuiz() {
+      document.getElementById('quizInstruction').innerText = studyData.interactive_quiz.instruction;
+      const qContainer = document.getElementById('quizQuestionsContainer');
+      
+      qContainer.innerHTML = studyData.interactive_quiz.questions.map(q => `
+        <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm space-y-2">
+          <div class="text-sm text-slate-800 leading-loose">
+            <span class="font-bold text-indigo-700">${q.id}.</span> 
+            ${q.prefix} 
+            <input type="text" id="q_${q.id}" class="border-b-2 border-slate-300 focus:border-indigo-600 px-2 py-0.5 outline-none font-medium text-indigo-900 bg-slate-50 rounded" placeholder="Điền đáp án..."> 
+            ${q.suffix}
+          </div>
+          <div id="feedback_${q.id}" class="hidden text-xs mt-2 pt-2 border-t border-slate-100"></div>
+        </div>
+      `).join('');
+    }
+
+    // Chấm điểm Quiz
+    function checkAnswers() {
+      studyData.interactive_quiz.questions.forEach(q => {
+        const input = document.getElementById(`q_${q.id}`);
+        const feedback = document.getElementById(`feedback_${q.id}`);
+        const userVal = input.value.trim().toLowerCase();
+        const correctVal = q.answer.toLowerCase();
+
+        feedback.classList.remove('hidden');
+        if (userVal === correctVal) {
+          feedback.innerHTML = `<span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> Đúng!</span> <span class="text-slate-500">(${q.explain})</span>`;
+          input.className = "border-b-2 border-emerald-500 px-2 py-0.5 outline-none font-medium text-emerald-900 bg-emerald-50 rounded";
+        } else {
+          feedback.innerHTML = `<span class="text-rose-600 font-bold"><i class="fa-solid fa-circle-xmark"></i> Sai.</span> Đáp án đúng: <b class="text-slate-800">${q.answer}</b> <p class="text-slate-500 mt-1">${q.explain}</p>`;
+          input.className = "border-b-2 border-rose-500 px-2 py-0.5 outline-none font-medium text-rose-900 bg-rose-50 rounded";
+        }
+      });
+    }
+
+    // 4. Render Danh sách Từ vựng & Paraphrase
+    function renderVocabAndParaphrase() {
+      const vContainer = document.getElementById('vocabListContainer');
+      vContainer.innerHTML = studyData.vocabularies.map(v => `
+        <div class="bg-white p-3.5 rounded-lg border border-slate-200 shadow-sm flex justify-between items-start hover:border-indigo-300 transition">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-slate-900 text-sm">${v.id}. ${v.word}</span>
+              <span class="text-[11px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded border border-slate-200">${v.pos}</span>
+              <span class="text-xs text-slate-500 font-mono">${v.ipa}</span>
+            </div>
+            <div class="text-xs text-slate-700"><strong>Nghĩa:</strong> ${v.meaning}</div>
+            <div class="text-xs text-slate-500 italic">“${v.example_en}”</div>
+            <div class="text-xs text-indigo-600">➔ Dịch: ${v.example_vi}</div>
+          </div>
+          <button onclick="speakText('${v.word.replace(/'/g, "\\'")}')" class="text-indigo-500 hover:text-indigo-700 p-2 rounded-full hover:bg-indigo-50 transition" title="Nghe phát âm">
+            <i class="fa-solid fa-volume-high text-base"></i>
+          </button>
+        </div>
+      `).join('');
+
+      const tableBody = document.getElementById('paraphraseTableBody');
+      tableBody.innerHTML = studyData.paraphrase_matrix.map(p => `
+        <tr class="border-b border-slate-100 hover:bg-slate-50/80">
+          <td class="p-2.5 font-medium text-slate-800">${p.q}</td>
+          <td class="p-2.5 text-indigo-600 font-medium">${p.p}</td>
+          <td class="p-2.5 text-slate-600">${p.m}</td>
+        </tr>
+      `).join('');
+    }
+
+    // 5. Tính năng Text-to-Speech (TTS)
+    function speakText(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = 'en-US';
+        msg.rate = parseFloat(document.getElementById('playbackRate').value);
+        window.speechSynthesis.speak(msg);
+      }
+    }
+
+    let isPlaying = false;
+    document.getElementById('btnPlayPassage').addEventListener('click', () => {
+      if (!('speechSynthesis' in window)) return;
+      if (isPlaying) {
+        window.speechSynthesis.cancel();
+        isPlaying = false;
+        document.getElementById('playIcon').className = "fa-solid fa-play text-sm";
+      } else {
+        const fullEnText = studyData.passage.en.lead + ' ' + studyData.passage.en.sections.map(s => s.text).join(' ');
+        const msg = new SpeechSynthesisUtterance(fullEnText);
+        msg.lang = 'en-US';
+        msg.rate = parseFloat(document.getElementById('playbackRate').value);
+        msg.onend = () => {
+          isPlaying = false;
+          document.getElementById('playIcon').className = "fa-solid fa-play text-sm";
+        };
+        window.speechSynthesis.speak(msg);
+        isPlaying = true;
+        document.getElementById('playIcon').className = "fa-solid fa-pause text-sm";
+      }
+    });
+
+    // Khởi tạo chạy ứng dụng
+    renderPassage();
+    renderQuiz();
+    renderVocabAndParaphrase();
+  </script>
+</body>
+</html>
